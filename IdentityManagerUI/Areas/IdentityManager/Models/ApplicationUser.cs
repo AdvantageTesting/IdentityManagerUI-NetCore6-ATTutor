@@ -10,5 +10,8 @@ namespace IdentityManagerUI.Models
     {
         public virtual ICollection<IdentityUserRole<string>> Roles { get; set; }
         public virtual ICollection<IdentityUserClaim<string>> Claims { get; set; }
+
+        // Added by Jed Schwartz
+        public int MyAdTutorID { get; set; }
     }
 }

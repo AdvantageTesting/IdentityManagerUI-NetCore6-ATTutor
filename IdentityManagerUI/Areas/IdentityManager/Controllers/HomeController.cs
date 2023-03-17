@@ -34,14 +34,14 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
             var fldInfo = typeof(ClaimTypes).GetFields(BindingFlags.Static | BindingFlags.Public);
             _claimTypes = fldInfo.ToDictionary(i => i.Name, i => (string)i.GetValue(null));
         }
-
+        [AllowAnonymous]
         public IActionResult Users()
         {
             ViewBag.Roles = _roles;
             ViewBag.ClaimTypes = _claimTypes.Keys.OrderBy(s => s);
             return View();
         }
-
+        [AllowAnonymous]
         public IActionResult Roles()
         {
             ViewBag.ClaimTypes = _claimTypes.Keys.OrderBy(s => s);
@@ -81,7 +81,8 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
                     //Key/Value props not camel cased (https://github.com/dotnet/corefx/issues/41309)
                     Claims = u.Claims.Select(c => new KeyValuePair<string, string>(_claimTypes.Single(x => x.Value == c.ClaimType).Key, c.ClaimValue)),
                     DisplayName = u.Claims.FirstOrDefault(c => c.ClaimType == ClaimTypes.Name)?.ClaimValue,
-                    UserName = u.UserName
+                    UserName = u.UserName,
+                    MyAdTutorID=u.MyAdTutorID   // Added by Jed Schwartz
                 })
             };
 
@@ -89,11 +90,11 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
         }
 
         [HttpPost("api/[action]")]
-        public async Task<IActionResult> CreateUser(string userName, string name, string email, string password)
+        public async Task<IActionResult> CreateUser(string userName, string name, string email, string password, int myAdTutorID)
         {
             try
             {
-                var user = new ApplicationUser() { Email = email, UserName = userName };
+                var user = new ApplicationUser() { Email = email, UserName = userName, MyAdTutorID = myAdTutorID, EmailConfirmed=true };
 
                 var result = await _userManager.CreateAsync(user, password);
                 if (result.Succeeded)
