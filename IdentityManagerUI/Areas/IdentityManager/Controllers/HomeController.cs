@@ -90,19 +90,22 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
         }
 
         [HttpPost("api/[action]")]
-        public async Task<IActionResult> CreateUser(string userName, string name, string email, string password, int myAdTutorID)
+        public async Task<IActionResult> CreateUser(/*string userName, string name,*/ string email, string password, int myAdTutorID)
         {
             try
             {
-                var user = new ApplicationUser() { Email = email, UserName = userName, MyAdTutorID = myAdTutorID, EmailConfirmed=true };
+                _logger.LogInformation($"QUICK TEST: Email={email}, Pwd={password}, TID={myAdTutorID}");
+                var user = new ApplicationUser() { Email = email, UserName = email, MyAdTutorID = myAdTutorID, EmailConfirmed=true };
+
+
 
                 var result = await _userManager.CreateAsync(user, password);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Created user {userName}.", userName);
+                    _logger.LogInformation($"Created user {email}: ID={user.Id}");
 
-                    if (name != null)
-                        await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
+                    //if (name != null)
+                    //    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name));
 
                     return NoContent();
                 }
@@ -111,7 +114,7 @@ namespace IdentityManagerUI.Areas.IdentityManager.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failure creating user {userName}.", userName);
+                _logger.LogError(ex, "Failure creating user {userName}.", email);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
             }
         }
